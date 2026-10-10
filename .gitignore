@@ -1,0 +1,10 @@
+node_modules/
+.DS_Store
+.vscode/
+.idea/
+*.log
+.env
+~$*.xlsx
+dist/
+bar-data.json
+bar-data.json.tmp
