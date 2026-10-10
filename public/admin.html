@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Overlook Hotel – Obsluha</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M5 5h22L16 18z M16 18v9M10 27h12' fill='none' stroke='%23c9a45c' stroke-width='2.4' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <main>
+    <div class="card">
+      <p class="crest">Overlook Hotel</p>
+      <h1>Obsluha</h1>
+      <div class="ornament"><span>◆</span></div>
+      <form id="addForm">
+        <label for="teamName">Nový tým</label>
+        <div class="add-row">
+          <input type="text" id="teamName" maxlength="60" placeholder="Jméno týmu" autocomplete="off" required>
+          <button class="btn primary" type="submit">Přidat</button>
+        </div>
+      </form>
+      <p class="message" id="msg"></p>
+      <div class="team-list" id="teams"></div>
+      <a class="btn" href="/">Domů</a>
+      <button class="btn danger" id="clearAll" type="button">Smazat vše</button>
+    </div>
+  </main>
+  <footer>Overlook Hotel &bull; Gold Room</footer>
+  <script src="/common.js"></script>
+  <script src="/admin.js"></script>
+</body>
+</html>

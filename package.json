@@ -1,0 +1,31 @@
+{
+  "name": "hotel-bar-drinks",
+  "version": "1.0.0",
+  "description": "Hotelový bar: hra na hádání drinků podle ingrediencí z tabulky.",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "import": "node scripts/import-xlsx.js",
+    "test": "node --test",
+    "build:exe": "pkg . --targets node22-win-x64 --output dist/hotel-bar.exe"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "@yao-pkg/pkg": "^6.23.0",
+    "exceljs": "^4.4.0"
+  },
+  "bin": "src/index.js",
+  "pkg": {
+    "assets": [
+      "public/**/*",
+      "data/drinks.json"
+    ]
+  }
+}
