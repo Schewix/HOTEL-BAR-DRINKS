@@ -31,3 +31,11 @@ document.getElementById('clearAll').addEventListener('click', async () => {
 });
 
 load();
+
+// Adresa, na kterou se mají připojit hráči (stejná wifi / hotspot).
+api('/api/info').then(({ urls }) => {
+  const join = document.getElementById('join');
+  join.replaceChildren(
+    el('div', { class: 'join-label' }, 'Hráči se připojí na'),
+    ...(urls.length ? urls.map((u) => el('div', { class: 'join-url' }, u)) : [el('div', { class: 'join-url' }, 'Notebook není připojený k žádné síti.')]));
+}).catch(() => {});

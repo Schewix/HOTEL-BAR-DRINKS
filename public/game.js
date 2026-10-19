@@ -2,6 +2,11 @@ const view = document.getElementById('view');
 let catalog;
 let state = { team: '', drink: null };
 
+// „Pokus 3 z 5“ u základních pokusů, „Extra pokus 1 z 2“ u pokusů navíc.
+function attemptLabel(number, base, extra) {
+  return number <= base ? `Pokus ${number} z ${base}` : `Extra pokus ${number - base} z ${extra}`;
+}
+
 async function init() {
   try {
     let teams;
@@ -46,7 +51,10 @@ async function showGuess(team, drinkName) {
   const tier = catalog.tiers[drink.tier];
   const progress = await api(`/api/progress?team=${encodeURIComponent(team)}&drink=${encodeURIComponent(drinkName)}`);
   const number = progress.used + 1;
-  const level = number > tier.attempts ? 'danger' : number > tier.attempts - 2 ? 'warn' : '';
+  const limit = progress.limit;
+  if (progress.used >= limit) return progress.bonus < progress.extra ? showPassword(drink, progress) : showExhausted(drink, progress);
+  const base = progress.base;
+  const level = number > base ? 'extra' : number === base ? 'danger' : number > base - 2 ? 'warn' : '';
 
   const selects = [];
   for (let i = 0; i < tier.ingredientCount; i++) {
@@ -68,7 +76,7 @@ async function showGuess(team, drinkName) {
       el('span', { class: 'badge ' + drink.tier }, tier.label),
       el('h2', {}, drink.name),
       el('div', { class: 'price' }, `${state.team} • cena ${drink.price}`)),
-    el('p', { class: 'attempt ' + level }, `Pokus ${number} z ${tier.attempts}`),
+    el('p', { class: 'attempt ' + level }, attemptLabel(number, base, progress.extra)),
     form);
 }
 
@@ -85,6 +93,49 @@ async function submitGuess(ingredients, msg) {
   }
 }
 
+// Extra pokus odemkne vedoucí: hráč mu předá kartičku a vedoucí zadá heslo (ověřuje ho server).
+function showPassword(drink, progress) {
+  const input = el('input', { type: 'password', id: 'password', autocomplete: 'off', required: '' });
+  const msg = el('p', { class: 'message' });
+  const used = progress.bonus ? `Extra pokus ${progress.bonus} z ${progress.extra} využit` : `Základní pokusy došly (${progress.base} z ${progress.base})`;
+  const form = el('form', { autocomplete: 'off', onsubmit: async (e) => {
+    e.preventDefault();
+    msg.textContent = '';
+    try {
+      await api('/api/extra', { method: 'POST', body: { team: state.team, drink: drink.name, password: input.value } });
+      showGuess(state.team, drink.name);
+    } catch (err) {
+      input.value = '';
+      msg.textContent = err.message;
+    }
+  } },
+  el('label', { for: 'password' }, 'Vložte heslo pro extra pokus'), input,
+  msg,
+  el('button', { class: 'btn primary', type: 'submit' }, 'Odemknout extra pokus'));
+  view.replaceChildren(
+    el('div', { class: 'drink-head' },
+      el('span', { class: 'badge ' + drink.tier }, catalog.tiers[drink.tier].label),
+      el('h2', {}, drink.name),
+      el('div', { class: 'price' }, state.team)),
+    el('p', { class: 'attempt extra' }, used),
+    el('p', { class: 'price' }, 'Předej kartičku extra pokusu vedoucímu, heslo zadá on.'),
+    form,
+    el('a', { class: 'btn', href: '/game.html?team=' + encodeURIComponent(state.team) }, 'Jiný drink'),
+    el('a', { class: 'btn', href: '/' }, 'Domů'));
+  input.focus();
+}
+
+function showExhausted(drink, progress) {
+  view.replaceChildren(
+    el('div', { class: 'drink-head' },
+      el('span', { class: 'badge ' + drink.tier }, catalog.tiers[drink.tier].label),
+      el('h2', {}, drink.name)),
+    el('p', { class: 'attempt danger' }, `Pokusy došly (${progress.used} z ${progress.limit})`),
+    el('p', { class: 'price' }, 'Využili jste všechny základní i extra pokusy.'),
+    el('a', { class: 'btn', href: '/game.html?team=' + encodeURIComponent(state.team) }, 'Jiný drink'),
+    el('a', { class: 'btn', href: '/' }, 'Domů'));
+}
+
 function showResult(guess, out) {
   const row = el('div', { class: 'result-row' },
     out.result.map((r, i) => el('div', { class: 'result-cell ' + r },
@@ -98,7 +149,8 @@ function showResult(guess, out) {
   if (out.solved) {
     buttons.push(el('a', { class: 'btn primary', href: '/game.html?team=' + encodeURIComponent(state.team) }, 'Další drink'));
   } else {
-    buttons.push(el('button', { class: 'btn primary', type: 'button', onclick: () => showGuess(state.team, state.drink.name) }, 'Znovu'));
+    // Při vyčerpaných pokusech vede "Znovu" na obrazovku s info o pokusech navíc.
+    buttons.push(el('button', { class: 'btn primary', type: 'button', onclick: () => showGuess(state.team, state.drink.name) }, out.number >= out.attempts ? 'Pokračovat' : 'Znovu'));
     buttons.push(el('a', { class: 'btn', href: '/game.html?team=' + encodeURIComponent(state.team) }, 'Jiný drink'));
   }
   buttons.push(el('a', { class: 'btn', href: '/' }, 'Domů'));
@@ -107,7 +159,7 @@ function showResult(guess, out) {
     el('div', { class: 'drink-head' },
       el('span', { class: 'badge ' + state.drink.tier }, catalog.tiers[state.drink.tier].label),
       el('h2', {}, state.drink.name),
-      el('div', { class: 'price' }, `Pokus ${out.number} z ${out.attempts}`)),
+      el('div', { class: 'price' }, attemptLabel(out.number, out.base, out.extra))),
     row, legend,
     out.solved ? el('p', { class: 'toast-win' }, `Na zdraví! Drink uhádnut na ${out.number}. pokus.`) : '',
     ...buttons);

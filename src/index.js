@@ -1,11 +1,13 @@
 const { exec } = require('child_process');
 const config = require('./config');
+const { lanUrls } = require('./network');
 const { open } = require('./store');
 const { createApp } = require('./app');
 
 const url = `http://127.0.0.1:${config.port}`;
 const server = createApp(open(config.dataFile)).listen(config.port, () => {
   console.log(`Overlook Hotel – Gold Room běží na ${url}`);
+  lanUrls(config.port).forEach((u) => console.log(`Hráči se připojí na ${u}`));
   console.log(`Data se ukládají do ${config.dataFile}`);
   // Ve zabaleném .exe rovnou otevři prohlížeč.
   if (process.pkg && process.platform === 'win32') exec(`start ${url}`);

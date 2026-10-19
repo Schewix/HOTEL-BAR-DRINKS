@@ -94,7 +94,7 @@ h3 { font-size: 1.1rem; }
 
 label { display: block; margin: 18px 0 6px; font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--brass); }
 
-select, input[type='text'] {
+select, input[type='text'], input[type='password'] {
   width: 100%;
   padding: 11px 12px;
   font: inherit;
@@ -137,6 +137,8 @@ option, optgroup { background: var(--ink); color: var(--cream); }
 .attempt { font-family: 'Playfair Display', Georgia, serif; font-size: 1.15rem; margin: 14px 0 0; }
 .attempt.warn { color: #e89a4b; }
 .attempt.danger { color: var(--wine-bright); }
+/* Extra pokusy odemčené heslem vedoucího */
+.attempt.extra { display: inline-block; padding: 4px 14px; border: 1px solid var(--deluxe); color: var(--deluxe); }
 
 .slots { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0 14px; text-align: left; }
 
@@ -177,3 +179,9 @@ footer { position: fixed; bottom: 0; left: 0; right: 0; padding: 8px; text-align
   h1 { font-size: 1.7rem; }
   footer { display: none; }
 }
+
+.join { margin-bottom: 6px; padding: 12px; border: 1px dashed rgba(201, 164, 92, 0.55); }
+.join-label { font-size: 0.68rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--brass); }
+.join-url { margin-top: 4px; font-family: 'Playfair Display', Georgia, serif; font-size: 1.15rem; color: var(--brass-soft); word-break: break-all; }
+.btn.mini { padding: 4px 12px; margin: 0 2px; font-size: 0.7rem; }
+.btn:disabled:hover { background: transparent; color: var(--cream); }
